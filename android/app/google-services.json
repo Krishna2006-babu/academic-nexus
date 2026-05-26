@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "373372710193",
+    "project_id": "academic-nexus-db32d",
+    "storage_bucket": "academic-nexus-db32d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:373372710193:android:47fcd29ef246f46c2ad410",
+        "android_client_info": {
+          "package_name": "com.example.academic_nexus"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCJ1EO1noz8rKi802TS9QZ3-SFNGdBBTOM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
