@@ -1,13 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import '../models/academic_models.dart';
 
 class FirebaseService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // Fetch subjects for dashboard
+  String get _userId {
+    final user = _auth.currentUser;
+    if (user == null) throw Exception("Wait, nobody is logged in!");
+    return user.uid;
+  }
+
   Stream<List<Subject>> streamSubjects(String semesterId) {
     return _db
+        .collection('users')
+        .doc(_userId) 
         .collection('semesters')
         .doc(semesterId)
         .collection('subjects')
@@ -17,10 +26,11 @@ class FirebaseService {
             .toList());
   }
 
-  // --- ATTENDANCE LEDGER LOGIC ---
   Future<void> logAttendance(String semesterId, String subjectId, bool present, String dateString) async {
     try {
       await _db
+          .collection('users')
+          .doc(_userId)
           .collection('semesters')
           .doc(semesterId)
           .collection('subjects')
@@ -34,19 +44,21 @@ class FirebaseService {
     }
   }
 
-  // Create a new subject
   Future<void> addSubject(String semesterId, Subject subject) async {
     await _db
+        .collection('users')
+        .doc(_userId)
         .collection('semesters')
         .doc(semesterId)
         .collection('subjects')
         .add(subject.toMap());
   }
 
-  // --- DELETE LOGIC ---
   Future<void> deleteSubject(String semesterId, String subjectId) async {
     try {
       await _db
+          .collection('users')
+          .doc(_userId)
           .collection('semesters')
           .doc(semesterId)
           .collection('subjects')
@@ -58,10 +70,11 @@ class FirebaseService {
     }
   }
 
-  // --- UPDATE LOGIC ---
   Future<void> updateSubjectData(String semesterId, String subjectId, Map<String, dynamic> data) async {
     try {
       await _db
+          .collection('users')
+          .doc(_userId)
           .collection('semesters')
           .doc(semesterId)
           .collection('subjects')
@@ -73,10 +86,11 @@ class FirebaseService {
     }
   }
 
-  // --- RESOURCE VAULT LOGIC ---
   Future<void> addResource(String semesterId, String subjectId, ResourceItem resource) async {
     try {
       await _db
+          .collection('users')
+          .doc(_userId)
           .collection('semesters')
           .doc(semesterId)
           .collection('subjects')
@@ -89,9 +103,10 @@ class FirebaseService {
     }
   }
 
-  // Listens to the vault for any new links
   Stream<List<ResourceItem>> streamResources(String semesterId, String subjectId) {
     return _db
+        .collection('users')
+        .doc(_userId)
         .collection('semesters')
         .doc(semesterId)
         .collection('subjects')
@@ -102,5 +117,69 @@ class FirebaseService {
         .map((snapshot) => snapshot.docs
             .map<ResourceItem>((doc) => ResourceItem.fromMap(doc.data() as Map<String, dynamic>, doc.id))
             .toList());
+  }
+
+  // --- TEMPORARY RESCUE SCRIPT ---
+  Future<void> rescueOldSubjects(String semesterId) async {
+    try {
+      var oldData = await _db
+          .collection('semesters')
+          .doc(semesterId)
+          .collection('subjects')
+          .get();
+
+      for (var doc in oldData.docs) {
+        await _db
+            .collection('users')
+            .doc(_userId)
+            .collection('semesters')
+            .doc(semesterId)
+            .collection('subjects')
+            .doc(doc.id) 
+            .set(doc.data());
+      }
+      debugPrint("SUCCESS: Old subjects rescued!");
+    } catch (e) {
+      debugPrint("RESCUE ERROR: $e");
+    }
+  }
+
+  // Saves the entire text conversation to Firestore
+  Future<void> saveChatHistory(List<Map<String, dynamic>> messages) async {
+    try {
+      await _db
+          .collection('users')
+          .doc(_userId)
+          .collection('chats')
+          .doc('ai_advisor')
+          .set({
+        'history': messages,
+        'lastUpdated': FieldValue.serverTimestamp(),
+      });
+      debugPrint("SUCCESS: Chat history saved!");
+    } catch (e) {
+      debugPrint("Error saving chat history: $e");
+    }
+  }
+
+  // Loads the previous conversation when the app opens
+  Future<List<Map<String, dynamic>>> loadChatHistory() async {
+    try {
+      DocumentSnapshot doc = await _db
+          .collection('users')
+          .doc(_userId)
+          .collection('chats')
+          .doc('ai_advisor')
+          .get();
+
+      if (doc.exists && doc.data() != null) {
+        final data = doc.data() as Map<String, dynamic>;
+        List<dynamic> rawHistory = data['history'] ?? [];
+        return rawHistory.map((msg) => Map<String, dynamic>.from(msg)).toList();
+      }
+    } catch (e) {
+      debugPrint("Error loading chat history: $e");
+    }
+    return [];
   }
 }

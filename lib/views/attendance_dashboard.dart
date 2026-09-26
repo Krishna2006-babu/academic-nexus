@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import '../models/academic_models.dart';
 import '../services/firebase_service.dart';
+import '../services/auth_service.dart'; // Added Auth Service for logout
 import 'weekly_schedule.dart'; 
 import 'sgpa_planner.dart';
-import 'global_vault_screen.dart'; // Imports the new Study Hub!
-
+import 'global_vault_screen.dart';
+import 'ai_advisor_screen.dart';
 class AttendanceDashboard extends StatefulWidget {
   const AttendanceDashboard({super.key});
 
@@ -17,8 +18,6 @@ class _AttendanceDashboardState extends State<AttendanceDashboard> {
   final FirebaseService _dbService = FirebaseService();
   final String currentSemesterId = 'sem_01';
   DateTime _selectedDate = DateTime.now();
-
-  // Notice: _showNoteDialog is GONE! It lives in the Vault now.
 
   void _showAddSubjectSheet() {
     String newName = '';
@@ -103,11 +102,30 @@ class _AttendanceDashboardState extends State<AttendanceDashboard> {
                     width: double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(backgroundColor: Colors.indigoAccent, padding: const EdgeInsets.symmetric(vertical: 15)),
-                      onPressed: () {
-                        if (newName.isNotEmpty && selectedDays.isNotEmpty) {
+                      onPressed: () async {
+                        // Trap 1: Did they forget a name?
+                        if (newName.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please enter a subject name!"), backgroundColor: Colors.redAccent));
+                          return;
+                        }
+                        // Trap 2: Did they forget to pick a day?
+                        if (selectedDays.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please select at least one day for this class!"), backgroundColor: Colors.orange));
+                          return;
+                        }
+
+                        // If everything is filled out, send it to the secure vault!
+                        try {
                           Subject newSubject = Subject(id: '', name: newName, creditPoints: selectedCredits, daysOfWeek: selectedDays, classTime: selectedTime.format(context), requiredPercentage: selectedTarget);
-                          _dbService.addSubject(currentSemesterId, newSubject);
-                          Navigator.pop(context);
+                          await _dbService.addSubject(currentSemesterId, newSubject);
+                          
+                          if (mounted) {
+                            Navigator.pop(context); // Close the sheet
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Subject safely secured in vault!"), backgroundColor: Colors.green));
+                          }
+                        } catch (e) {
+                          // Trap 3: Did Firebase block it?
+                          if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Database Error: $e"), backgroundColor: Colors.red));
                         }
                       },
                       child: const Text("Save Subject", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -159,6 +177,7 @@ class _AttendanceDashboardState extends State<AttendanceDashboard> {
         backgroundColor: Colors.indigoAccent,
         elevation: 0,
         actions: [
+         
           // 1. Study Hub Folder
           IconButton(
             icon: const Icon(Icons.folder_special, color: Colors.white),
@@ -173,7 +192,18 @@ class _AttendanceDashboardState extends State<AttendanceDashboard> {
           IconButton(
             icon: const Icon(Icons.calendar_month, color: Colors.white),
             onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const WeeklyScheduleScreen())),
-          )
+          ),
+          // 4. Logout
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: () => AuthService().signOut(),
+          ),
+          // AI Advisor Button
+          IconButton(
+            icon: const Icon(Icons.smart_toy, color: Colors.greenAccent),
+            tooltip: "AI Advisor",
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AiAdvisorScreen())),
+          ),
         ],
       ),
       body: StreamBuilder<List<Subject>>(
@@ -195,7 +225,6 @@ class _AttendanceDashboardState extends State<AttendanceDashboard> {
               final double targetDecimal = subject.requiredPercentage / 100;
               bool isAlreadyMarked = subject.isMarkedOn(DateTime.now().toIso8601String().split('T')[0]);
 
-              // Notice: The GestureDetector wrap is gone. To access notes, you use the Folder icon in the AppBar.
               return Card(
                 color: Colors.grey[850],
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

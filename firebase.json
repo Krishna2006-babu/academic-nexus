@@ -1,1 +1,39 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"academic-nexus-db32d","appId":"1:373372710193:android:47fcd29ef246f46c2ad410","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"academic-nexus-db32d","configurations":{"android":"1:373372710193:android:47fcd29ef246f46c2ad410","ios":"1:373372710193:ios:ec8431253306389c2ad410","macos":"1:373372710193:ios:ec8431253306389c2ad410","web":"1:373372710193:web:88e1f3bfd877da3d2ad410","windows":"1:373372710193:web:5fbdab855d7e9c482ad410"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "academic-nexus-db32d",
+          "appId": "1:373372710193:android:47fcd29ef246f46c2ad410",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "academic-nexus-db32d",
+          "configurations": {
+            "android": "1:373372710193:android:47fcd29ef246f46c2ad410",
+            "ios": "1:373372710193:ios:ec8431253306389c2ad410",
+            "macos": "1:373372710193:ios:ec8431253306389c2ad410",
+            "web": "1:373372710193:web:88e1f3bfd877da3d2ad410",
+            "windows": "1:373372710193:web:5fbdab855d7e9c482ad410"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

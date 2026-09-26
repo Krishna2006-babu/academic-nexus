@@ -35,7 +35,7 @@ dependencies:
   firebase_core: ^3.0.0
   cloud_firestore: ^5.0.0
   firebase_storage: ^12.4.10
-  firebase_auth: ^5.0.0
+  firebase_auth: ^5.7.0
 
   # File handling for Subject Notes (Feature 4)
   file_picker: ^11.0.2
@@ -47,6 +47,10 @@ dependencies:
 
   # Smart scheduling reminders (Feature 1 Add-on)
   flutter_local_notifications: ^17.0.0
+  google_generative_ai: ^0.4.7
+  flutter_dotenv: ^6.0.1
+  http: ^1.6.0
+  image_picker: ^1.2.2
 
 dev_dependencies:
   flutter_test:
@@ -71,9 +75,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assests/.env
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
