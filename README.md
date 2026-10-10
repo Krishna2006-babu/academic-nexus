@@ -5,7 +5,7 @@
 ![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)
 ![Sarvam AI](https://img.shields.io/badge/Sarvam_AI-1E1E1E?style=for-the-badge&logo=openai&logoColor=white)
 
-**Academic Nexus** is a proactive student dashboard and real-time academic management platform. Built to empower students with data-driven insights, it features intelligent attendance tracking, secure cloud storage for academic records, and an elite multimodal AI tutor capable of processing both text and complex academic images.
+**Academic Nexus** is an advanced student dashboard centered around a powerful **dynamic SGPA target tracker**. Built to empower students with precise data-driven insights, it calculates the exact academic metrics needed to achieve semester goals. The platform is further enhanced by an elite multimodal AI tutor, real-time attendance tracking, and secure cloud storage for a complete academic management experience.
 
 **Live Application:** [https://academic-nexus-db32d.web.app](https://academic-nexus-db32d.web.app)
 
@@ -13,10 +13,10 @@
 
 ## ✨ Core Features
 
+*   **Dynamic SGPA Target Tracker:** The algorithmic core of the application. This advanced planner dynamically calculates and tracks the exact grades, credit weightings, and milestones required for a student to hit their target Semester Grade Point Average (SGPA).
 *   **Multimodal AI Advisor:** Integrated with Sarvam AI's advanced models (`sarvam-105b` for text and `gemma4` for vision). The AI acts as an interactive tutor, reading uploaded screenshots of assignments or notes and breaking down complex concepts step-by-step.
 *   **Secure Private Vaults:** Powered by Firebase Cloud Firestore. Every user gets a strict, isolated data environment protected by robust backend Security Rules, ensuring academic data is completely private and permanently saved.
-*   **Real-Time Authentication:** Seamless and secure user onboarding managed via Firebase Authentication.
-*   **Proactive Attendance Tracking:** Dynamic tracking of target versus current attendance percentages for individual subjects.
+*   **Proactive Attendance Tracking:** Dynamic tracking of target versus current attendance percentages for individual subjects, instantly calculating "safe to miss" limits.
 *   **Cross-Platform Ready:** Built with a Flutter frontend and compiled seamlessly for the Web with progressive web app (PWA) capabilities.
 
 ---
