@@ -1,29 +1,20 @@
+<div align="center">
+
 # 🎓 Academic Nexus
 
-### A data-driven student dashboard that helps students plan, track, and achieve their academic goals.
+### The data-driven student dashboard that tells you exactly what it takes to hit your target SGPA.
 
-<p align="center">
-  <a href="https://academic-nexus-db32d.web.app">
-    <img src="https://img.shields.io/badge/Live_Demo-Visit_App-2ea44f?style=for-the-badge&logo=firebase&logoColor=white" />
-  </a>
-</p>
+[![Live Demo]\([https://img.shields.io/badge/Live_Demo-Visit_App-2ea44f?style=for-the-badge&logo=firebase&logoColor=white)\](https://academic-nexus-db32d.web.app](https://img.shields.io/badge/Live_Demo-Visit_App-2ea44f?style=for-the-badge\&logo=firebase\&logoColor=white\)]\(https://academic-nexus-db32d.web.app))
 
-<p align="center">
-  ![Flutter](https://img.shields.io/badge/Flutter-02569B?style=flat-square&logo=flutter&logoColor=white)
-  ![Dart](https://img.shields.io/badge/Dart-0175C2?style=flat-square&logo=dart&logoColor=white)
-  ![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=flat-square&logo=firebase&logoColor=black)
-  ![Cloudflare](https://img.shields.io/badge/Cloudflare_Workers-F38020?style=flat-square&logo=cloudflare&logoColor=white)
-  ![Sarvam AI](https://img.shields.io/badge/Sarvam_AI-1E1E1E?style=flat-square)
-  ![PWA](https://img.shields.io/badge/PWA-5A0FC8?style=flat-square&logo=pwa&logoColor=white)
-</p>
+![Flutter]\([https://img.shields.io/badge/Flutter-02569B?style=flat-square&logo=flutter&logoColor=white](https://img.shields.io/badge/Flutter-02569B?style=flat-square\&logo=flutter\&logoColor=white))
+![Dart]\([https://img.shields.io/badge/Dart-0175C2?style=flat-square&logo=dart&logoColor=white](https://img.shields.io/badge/Dart-0175C2?style=flat-square\&logo=dart\&logoColor=white))
+![Firebase]\([https://img.shields.io/badge/Firebase-FFCA28?style=flat-square&logo=firebase&logoColor=black](https://img.shields.io/badge/Firebase-FFCA28?style=flat-square\&logo=firebase\&logoColor=black))
+![Sarvam AI]\([https://img.shields.io/badge/Sarvam_AI-1E1E1E?style=flat-square&logo=openai&logoColor=white](https://img.shields.io/badge/Sarvam_AI-1E1E1E?style=flat-square\&logo=openai\&logoColor=white))
+![PWA]\([https://img.shields.io/badge/PWA-5A0FC8?style=flat-square&logo=pwa&logoColor=white](https://img.shields.io/badge/PWA-5A0FC8?style=flat-square\&logo=pwa\&logoColor=white))
 
-<p align="center">
-  <a href="https://academic-nexus-db32d.web.app">Live Demo</a> ·
-  <a href="#-features">Features</a> ·
-  <a href="#-architecture">Architecture</a> ·
-  <a href="#-getting-started">Getting Started</a> ·
-  <a href="#-deployment">Deployment</a>
-</p>
+[Live Demo]\([https://academic-nexus-db32d.web.app](https://academic-nexus-db32d.web.app)) · [Features]\(#-features) · [Getting Started]\(#-getting-started) · [Deployment]\(#%EF%B8%8F-deployment) · [Security]\(#-security)
+
+</div>
 
 ---
 
