@@ -19,127 +19,290 @@ class _AttendanceDashboardState extends State<AttendanceDashboard> {
   final String currentSemesterId = 'sem_01';
   DateTime _selectedDate = DateTime.now();
 
-  void _showAddSubjectSheet() {
-    String newName = '';
-    TimeOfDay selectedTime = TimeOfDay.now();
-    List<int> selectedDays = [];
-    double selectedTarget = 75.0; 
-    int selectedCredits = 4; 
+  
+void _showAddSubjectSheet() {
+  final parentContext = context;
 
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.grey[900],
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setModalState) {
-            return Padding(
-              padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom, left: 20, right: 20, top: 20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text("Add New Subject", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
-                  const SizedBox(height: 16),
-                  TextField(style: const TextStyle(color: Colors.white), decoration: const InputDecoration(labelText: 'Subject Name', labelStyle: TextStyle(color: Colors.grey)), onChanged: (val) => newName = val),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text("Credit Points:", style: TextStyle(color: Colors.white)),
-                      DropdownButton<int>(
-                        value: selectedCredits,
-                        dropdownColor: Colors.grey[850],
-                        style: const TextStyle(color: Colors.indigoAccent, fontWeight: FontWeight.bold, fontSize: 16),
-                        underline: Container(height: 2, color: Colors.indigoAccent),
-                        items: [1, 2, 3, 4, 5, 6].map((int value) => DropdownMenuItem<int>(value: value, child: Text("$value Credits"))).toList(),
-                        onChanged: (int? newValue) { if (newValue != null) setModalState(() => selectedCredits = newValue); },
+  String newName = '';
+  TimeOfDay selectedTime = TimeOfDay.now();
+  List<int> selectedDays = [];
+  double selectedTarget = 75.0;
+  int selectedCredits = 4;
+
+  showModalBottomSheet<void>(
+    context: parentContext,
+    isScrollControlled: true,
+    backgroundColor: Colors.grey[900],
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(
+        top: Radius.circular(20),
+      ),
+    ),
+    builder: (sheetContext) {
+      return StatefulBuilder(
+        builder: (modalContext, setModalState) {
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(modalContext).viewInsets.bottom,
+              left: 20,
+              right: 20,
+              top: 20,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Add New Subject",
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                TextField(
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: 'Subject Name',
+                    labelStyle: TextStyle(color: Colors.grey),
+                  ),
+                  onChanged: (val) => newName = val,
+                ),
+
+                const SizedBox(height: 20),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "Credit Points:",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    DropdownButton<int>(
+                      value: selectedCredits,
+                      dropdownColor: Colors.grey[850],
+                      style: const TextStyle(
+                        color: Colors.indigoAccent,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text("Target Attendance:", style: TextStyle(color: Colors.white)),
-                      Text("${selectedTarget.toInt()}%", style: const TextStyle(color: Colors.indigoAccent, fontWeight: FontWeight.bold, fontSize: 16)),
-                    ],
-                  ),
-                  Slider(
-                    value: selectedTarget, min: 50, max: 100, divisions: 10,
-                    activeColor: Colors.indigoAccent, inactiveColor: Colors.grey[700],
-                    label: "${selectedTarget.toInt()}%",
-                    onChanged: (val) => setModalState(() => selectedTarget = val),
-                  ),
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text("Class Time: ${selectedTime.format(context)}", style: const TextStyle(color: Colors.white)),
-                    trailing: const Icon(Icons.access_time, color: Colors.indigoAccent),
-                    onTap: () async {
-                      TimeOfDay? time = await showTimePicker(context: context, initialTime: selectedTime);
-                      if (time != null) setModalState(() => selectedTime = time);
-                    },
-                  ),
-                  const Text("Select Days:", style: TextStyle(color: Colors.white)),
-                  Wrap(
-                    spacing: 8.0,
-                    children: List.generate(7, (index) {
-                      int dayNum = index + 1;
-                      List<String> dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-                      return FilterChip(
-                        label: Text(dayNames[index]),
-                        selected: selectedDays.contains(dayNum),
-                        selectedColor: Colors.indigoAccent,
-                        onSelected: (bool selected) {
-                          setModalState(() { selected ? selectedDays.add(dayNum) : selectedDays.remove(dayNum); });
-                        },
-                      );
-                    }),
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.indigoAccent, padding: const EdgeInsets.symmetric(vertical: 15)),
-                      onPressed: () async {
-                        // Trap 1: Did they forget a name?
-                        if (newName.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please enter a subject name!"), backgroundColor: Colors.redAccent));
-                          return;
-                        }
-                        // Trap 2: Did they forget to pick a day?
-                        if (selectedDays.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please select at least one day for this class!"), backgroundColor: Colors.orange));
-                          return;
-                        }
-
-                        // If everything is filled out, send it to the secure vault!
-                        try {
-                          Subject newSubject = Subject(id: '', name: newName, creditPoints: selectedCredits, daysOfWeek: selectedDays, classTime: selectedTime.format(context), requiredPercentage: selectedTarget);
-                          await _dbService.addSubject(currentSemesterId, newSubject);
-                          
-                          if (mounted) {
-                            Navigator.pop(context); // Close the sheet
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Subject safely secured in vault!"), backgroundColor: Colors.green));
-                          }
-                        } catch (e) {
-                          // Trap 3: Did Firebase block it?
-                          if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Database Error: $e"), backgroundColor: Colors.red));
+                      underline: Container(
+                        height: 2,
+                        color: Colors.indigoAccent,
+                      ),
+                      items: [1, 2, 3, 4, 5, 6]
+                          .map(
+                            (value) => DropdownMenuItem<int>(
+                              value: value,
+                              child: Text("$value Credits"),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (newValue) {
+                        if (newValue != null) {
+                          setModalState(() {
+                            selectedCredits = newValue;
+                          });
                         }
                       },
-                      child: const Text("Save Subject", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 20),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "Target Attendance:",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    Text(
+                      "${selectedTarget.toInt()}%",
+                      style: const TextStyle(
+                        color: Colors.indigoAccent,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+
+                Slider(
+                  value: selectedTarget,
+                  min: 50,
+                  max: 100,
+                  divisions: 10,
+                  activeColor: Colors.indigoAccent,
+                  inactiveColor: Colors.grey,
+                  label: "${selectedTarget.toInt()}%",
+                  onChanged: (val) {
+                    setModalState(() {
+                      selectedTarget = val;
+                    });
+                  },
+                ),
+
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(
+                    "Class Time: ${selectedTime.format(modalContext)}",
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  trailing: const Icon(
+                    Icons.access_time,
+                    color: Colors.indigoAccent,
+                  ),
+                  onTap: () async {
+                    final time = await showTimePicker(
+                      context: modalContext,
+                      initialTime: selectedTime,
+                    );
+
+                    if (time != null && modalContext.mounted) {
+                      setModalState(() {
+                        selectedTime = time;
+                      });
+                    }
+                  },
+                ),
+
+                const Text(
+                  "Select Days:",
+                  style: TextStyle(color: Colors.white),
+                ),
+
+                Wrap(
+                  spacing: 8.0,
+                  children: List.generate(7, (index) {
+                    final dayNum = index + 1;
+                    const dayNames = [
+                      'Mon', 'Tue', 'Wed', 'Thu',
+                      'Fri', 'Sat', 'Sun'
+                    ];
+
+                    return FilterChip(
+                      label: Text(dayNames[index]),
+                      selected: selectedDays.contains(dayNum),
+                      selectedColor: Colors.indigoAccent,
+                      onSelected: (selected) {
+                        setModalState(() {
+                          if (selected) {
+                            selectedDays.add(dayNum);
+                          } else {
+                            selectedDays.remove(dayNum);
+                          }
+                        });
+                      },
+                    );
+                  }),
+                ),
+
+                const SizedBox(height: 20),
+
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.indigoAccent,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 15,
+                      ),
+                    ),
+                    onPressed: () async {
+                      if (newName.trim().isEmpty) {
+                        ScaffoldMessenger.of(parentContext)
+                            .showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              "Please enter a subject name!",
+                            ),
+                            backgroundColor: Colors.redAccent,
+                          ),
+                        );
+                        return;
+                      }
+
+                      if (selectedDays.isEmpty) {
+                        ScaffoldMessenger.of(parentContext)
+                            .showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              "Please select at least one day for this class!",
+                            ),
+                            backgroundColor: Colors.orange,
+                          ),
+                        );
+                        return;
+                      }
+
+                      try {
+                        final newSubject = Subject(
+                          id: '',
+                          name: newName.trim(),
+                          creditPoints: selectedCredits,
+                          daysOfWeek: selectedDays,
+                          classTime: selectedTime.format(modalContext),
+                          requiredPercentage: selectedTarget,
+                        );
+
+                        await _dbService.addSubject(
+                          currentSemesterId,
+                          newSubject,
+                        );
+
+                        if (!parentContext.mounted ||
+                            !modalContext.mounted) {
+                          return;
+                        }
+
+                        Navigator.of(modalContext).pop();
+
+                        ScaffoldMessenger.of(parentContext)
+                            .showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              "Subject safely secured in vault!",
+                            ),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      } catch (e) {
+                        if (!parentContext.mounted) return;
+
+                        ScaffoldMessenger.of(parentContext)
+                            .showSnackBar(
+                          SnackBar(
+                            content: Text("Database Error: $e"),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    },
+                    child: const Text(
+                      "Save Subject",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 20),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
+                ),
+
+                const SizedBox(height: 20),
+              ],
+            ),
+          );
+        },
+      );
+    },
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {

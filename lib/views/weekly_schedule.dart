@@ -132,7 +132,7 @@ class _WeeklyScheduleScreenState extends State<WeeklyScheduleScreen> {
                         leading: Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Colors.indigoAccent.withOpacity(0.2),
+                            color: Colors.indigoAccent..withValues(alpha: 0.5),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(Icons.book, color: Colors.indigoAccent),

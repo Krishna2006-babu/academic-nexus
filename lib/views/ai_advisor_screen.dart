@@ -271,7 +271,7 @@ class _AiAdvisorScreenState extends State<AiAdvisorScreen> {
                       top: 4,
                       child: GestureDetector(
                         onTap: () => setState(() {
-                          _selectedImage = null;
+                          
                           _imageBytes = null;
                         }),
                         child: const CircleAvatar(

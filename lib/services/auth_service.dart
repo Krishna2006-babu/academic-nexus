@@ -4,41 +4,70 @@ import 'package:flutter/foundation.dart';
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // 1. Get the currently logged-in user
   User? get currentUser => _auth.currentUser;
-
-  // 2. Listen to login/logout changes in real-time
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
-  // 3. Register a brand new user
-  Future<User?> signUpWithEmailPassword(String email, String password) async {
+  // 1. Password Reset / Forgot Password
+  Future<void> sendPasswordResetEmail(String email) async {
+    await _auth.sendPasswordResetEmail(email: email.trim());
+  }
+
+  // 2. Google Sign-In (Cross-platform / Web-friendly)
+  Future<UserCredential?> signInWithGoogle() async {
     try {
-      UserCredential credential = await _auth.createUserWithEmailAndPassword(
-        email: email, 
-        password: password,
-      );
-      return credential.user;
+      GoogleAuthProvider googleProvider = GoogleAuthProvider();
+      googleProvider.addScope('email');
+      
+      if (kIsWeb) {
+        // Native browser pop-up for Web/PWA
+        return await _auth.signInWithPopup(googleProvider);
+      } else {
+        return await _auth.signInWithProvider(googleProvider);
+      }
     } catch (e) {
-      debugPrint("SIGN UP ERROR: $e");
-      return null;
+      debugPrint('Google Sign-In Error: $e');
+      rethrow;
     }
   }
 
-  // 4. Log in an existing user
-  Future<User?> signInWithEmailPassword(String email, String password) async {
-    try {
-      UserCredential credential = await _auth.signInWithEmailAndPassword(
-        email: email, 
-        password: password,
-      );
-      return credential.user;
-    } catch (e) {
-      debugPrint("SIGN IN ERROR: $e");
-      return null;
-    }
+  // 3. Phone Authentication: Send OTP
+  Future<void> verifyPhoneNumber({
+    required String phoneNumber,
+    required Function(PhoneAuthCredential) onVerificationCompleted,
+    required Function(FirebaseAuthException) onVerificationFailed,
+    required Function(String verificationId, int? resendToken) onCodeSent,
+    required Function(String verificationId) onCodeAutoRetrievalTimeout,
+  }) async {
+    await _auth.verifyPhoneNumber(
+      phoneNumber: phoneNumber.trim(),
+      verificationCompleted: onVerificationCompleted,
+      verificationFailed: onVerificationFailed,
+      codeSent: onCodeSent,
+      codeAutoRetrievalTimeout: onCodeAutoRetrievalTimeout,
+    );
   }
 
-  // 5. Log out
+  // 4. Phone Authentication: Verify OTP
+  Future<UserCredential> signInWithPhoneOtp({
+    required String verificationId,
+    required String smsCode,
+  }) async {
+    PhoneAuthCredential credential = PhoneAuthProvider.credential(
+      verificationId: verificationId,
+      smsCode: smsCode.trim(),
+    );
+    return await _auth.signInWithCredential(credential);
+  }
+
+  // Standard Email/Password Sign-In
+  Future<UserCredential> signInWithEmailPassword(String email, String password) async {
+    return await _auth.signInWithEmailAndPassword(
+      email: email.trim(),
+      password: password,
+    );
+  }
+
+  // Sign Out
   Future<void> signOut() async {
     await _auth.signOut();
   }

@@ -17,55 +17,91 @@ class _SgpaPlannerScreenState extends State<SgpaPlannerScreen> {
   double targetSgpa = 8.0;
 
   // --- THE NEW GREEDY ALGORITHM ---
-  Map<String, int> calculateTargetGrades(List<Subject> subjects) {
-    Map<String, int> grades = {};
-    int totalCredits = subjects.fold(0, (sum, sub) => sum + sub.creditPoints);
-    if (totalCredits == 0) return grades;
+  
+Map<String, int> calculateTargetGrades(List<Subject> subjects) {
+  Map<String, int> grades = {};
 
-    // We must hit or exceed this exact integer point target
-    int requiredTotalPoints = (targetSgpa * totalCredits).ceil();
+  int totalCredits =
+      subjects.fold(0, (sum, sub) => sum + sub.creditPoints);
 
-    // 1. Start by assuming a perfect 10 in every subject
-    for (var sub in subjects) {
-      grades[sub.id] = 10;
+  if (subjects.isEmpty || totalCredits <= 0) return grades;
+
+  int requiredPoints = (targetSgpa * totalCredits).ceil();
+  int remainingBudget = totalCredits * 10 - requiredPoints;
+
+  for (var sub in subjects) {
+    grades[sub.id] = 10;
+  }
+
+  // Group subjects by difficulty.
+  List<Subject> hard =
+      subjects.where((s) => s.difficulty == 'Hard').toList();
+
+  List<Subject> medium =
+      subjects.where((s) => s.difficulty == 'Medium').toList();
+
+  List<Subject> easy =
+      subjects.where((s) => s.difficulty == 'Easy').toList();
+
+  // Sort subjects by current reductions to maintain balance.
+  void reduceGroup(List<Subject> group, int reduction) {
+    group.sort((a, b) =>
+        (10 - grades[a.id]!).compareTo(10 - grades[b.id]!));
+    
+    for (var sub in group) {
+      if (grades[sub.id]! <= 4) continue;
+
+      if (remainingBudget >= sub.creditPoints) {
+        grades[sub.id] = grades[sub.id]! - 1;
+        remainingBudget -= sub.creditPoints;
+      }
+    }
+  }
+
+  // Initial two reduction rounds for Hard.
+  for (int round = 0; round < 2; round++) {
+    reduceGroup(hard, round);
+  }
+
+  // Initial two reduction rounds for Medium.
+  for (int round = 0; round < 2; round++) {
+    reduceGroup(medium, round);
+  }
+
+  // Continue alternating Hard and Medium.
+  while (remainingBudget > 0) {
+    bool changed = false;
+
+    // Hard gets priority.
+    int beforeHard = remainingBudget;
+    reduceGroup(hard, 0);
+
+    if (remainingBudget < beforeHard) {
+      changed = true;
     }
 
-    int currentPoints = totalCredits * 10;
+    // Then Medium.
+    int beforeMedium = remainingBudget;
+    reduceGroup(medium, 0);
 
-    // If even all 10s isn't enough, it's impossible. Return 10s.
-    if (currentPoints < requiredTotalPoints) return grades;
+    if (remainingBudget < beforeMedium) {
+      changed = true;
+    }
 
-    // 2. The "Greedy Downgrade" - Relentlessly drop Hard classes first
-    List<String> dropPriority = ['Hard', 'Medium', 'Easy'];
-    bool droppedSomething;
-
-    do {
-      droppedSomething = false;
-
-      for (String diff in dropPriority) {
-        List<Subject> diffSubjects = subjects.where((s) => s.difficulty == diff).toList();
-        
-        // Sort by current grade descending to drop them evenly (e.g. 9,9 instead of 10,8)
-        diffSubjects.sort((a, b) => grades[b.id]!.compareTo(grades[a.id]!));
-
-        for (var sub in diffSubjects) {
-          // We set a floor of 4 (passing grade)
-          if (grades[sub.id]! > 4) {
-            // If we drop this class by 1 grade, will we still have enough total points?
-            if ((currentPoints - sub.creditPoints) >= requiredTotalPoints) {
-              grades[sub.id] = grades[sub.id]! - 1;
-              currentPoints -= sub.creditPoints;
-              droppedSomething = true;
-              break; // Break inner loop to restart priority check (always attacks Hard first)
-            }
-          }
-        }
-        if (droppedSomething) break; // Break outer loop to restart the do-while
-      }
-    } while (droppedSomething);
-
-    return grades;
+    if (!changed) break;
   }
+
+  // Easy subjects are considered only after Hard and Medium.
+  while (remainingBudget > 0) {
+    int before = remainingBudget;
+    reduceGroup(easy, 0);
+
+    if (remainingBudget == before) break;
+  }
+
+  return grades;
+}
+
 
   // --- UI ---
   @override
